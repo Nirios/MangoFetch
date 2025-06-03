@@ -6,6 +6,7 @@ import sys
 import os
 import queue
 import json
+import uuid
 
 
 # Add those to your browser bookmarks
@@ -18,9 +19,11 @@ import json
 
 
 REQUIRED_KEYS = ["port", "audio_path", "video_path"]
+download_status = {}
+pending_ids = []
+current_id = [None]
 
 
-# Load configuration
 try:
     with open("config.json", "r", encoding="utf-8") as f:
         config = json.load(f)
@@ -51,9 +54,18 @@ def queue_worker():
     while True:
         item = download_queue.get()
         if item is None:
-            break  # Allows for clean shutdown if you ever want it
-        url, mode = item
-        Handler.download_video(url,mode)
+            break
+        url, mode, download_id = item
+        current_id[0] = download_id
+        if download_id in pending_ids:
+            pending_ids.remove(download_id)
+        download_status[download_id] = "downloading"
+        try:
+            Handler.download_video(url, mode)
+            download_status[download_id] = "completed"
+        except Exception as e:
+            download_status[download_id] = f"failed: {e}"
+        current_id[0] = None
         download_queue.task_done()
 
 
@@ -65,9 +77,10 @@ def delete_vtt_files(directory):
     for filename in os.listdir(directory):
         if filename.endswith(".vtt"):
             file_path = os.path.join(directory, filename)
+
             try:
                 os.remove(file_path)
-                # print(f"Deleted subtitle file: {file_path}")
+                
             except Exception as e:
                 print(f"Failed to delete {file_path}: {e}")
 
@@ -83,22 +96,54 @@ class Handler(BaseHTTPRequestHandler):
 
 
     def log_message(self, format, *args):
-        if self.command != "OPTIONS":
-            super().log_message(format, *args)
+        pass
+        # if self.command != "OPTIONS":
+        #     super().log_message(format, *args)
 
 
     def do_GET(self):
         query = urlparse(self.path).query
         params = parse_qs(query)
 
-        if 'url' in params:
-            url = params['url'][0]
-            mode = params.get('mode', ['video'])[0]
-            download_queue.put((url,mode))
+        if self.path.startswith("/status"):
+            download_id = params.get("id", [None])[0]
+            status = download_status.get(download_id, "unknown id")
+
+            # Check if it's downloading
+            if download_id == current_id[0]:
+                # Show how many are left after this one
+                pos = 1
+                total = 1 + len(pending_ids)
+                status += f" ({pos} of {total})"
+
+            elif download_id in pending_ids:
+                pos = 1 + pending_ids.index(download_id) + (1 if current_id[0] else 0)
+                total = (1 if current_id[0] else 0) + len(pending_ids)
+                status += f" ({pos} of {total})"
+
+            elif status.startswith("completed") or status.startswith("failed"):
+                pass  # No queue info needed
+
+            else:
+                status += " (not in queue)"
+
             self.send_response(200)
             self.send_header('Access-Control-Allow-Origin', 'https://www.youtube.com')
             self.end_headers()
-            self.wfile.write(b'Download started')
+            self.wfile.write(status.encode("utf-8"))
+            return
+
+        if 'url' in params:
+            url = params['url'][0]
+            mode = params.get('mode', ['video'])[0]
+            download_id = str(uuid.uuid4())
+            download_status[download_id] = "queued"
+            pending_ids.append(download_id)
+            download_queue.put((url, mode, download_id))
+            self.send_response(200)
+            self.send_header('Access-Control-Allow-Origin', 'https://www.youtube.com')
+            self.end_headers()
+            self.wfile.write(f"Download queued. ID: {download_id}".encode("utf-8"))
 
         else:
             self.send_response(400)
