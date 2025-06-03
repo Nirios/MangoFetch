@@ -4,6 +4,7 @@ import subprocess
 import threading
 import os
 import queue
+import json
 
 
 # Add those to your browser bookmarks
@@ -15,15 +16,22 @@ import queue
 # javascript:fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)+'&mode=audio')
 
 
-PORT = 8000
-audio_path = "C:/yt-dlp/Music/"     # Folder containing your downloaded audio files
-video_path = "C:/yt-dlp/Videos/"    # Folder containing your downloaded video files
-download_queue = queue.Queue()
+with open("config.json", "r", encoding="utf-8") as f:
+    config = json.load(f)
 
+
+def ensure_trailing_sep(path):
+    return path if path.endswith(os.sep) else path + os.sep
+
+
+PORT = config["port"]
+audio_path = ensure_trailing_sep(config["audio_path"])
+video_path = ensure_trailing_sep(config["video_path"])
 os.makedirs(audio_path, exist_ok=True)
 os.makedirs(video_path, exist_ok=True)
 
 
+download_queue = queue.Queue()
 def queue_worker():
     while True:
         item = download_queue.get()
@@ -108,6 +116,8 @@ class Handler(BaseHTTPRequestHandler):
                 "-f", "bestaudio/best",
                 "--sponsorblock-remove", "music_offtopic",
                 "-x", "--audio-format", "mp3",
+                "--embed-thumbnail",
+                "--add-metadata",
                 url
             ])
         
@@ -130,6 +140,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
+
     server = HTTPServer(('localhost', PORT), Handler)
     print(f"Server running on port {PORT}")
     server.serve_forever()
