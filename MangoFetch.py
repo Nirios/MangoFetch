@@ -2,6 +2,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 import subprocess
 import threading
+import sys
 import os
 import queue
 import json
@@ -16,8 +17,22 @@ import json
 # javascript:fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)+'&mode=audio')
 
 
-with open("config.json", "r", encoding="utf-8") as f:
-    config = json.load(f)
+REQUIRED_KEYS = ["port", "audio_path", "video_path"]
+
+
+# Load configuration
+try:
+    with open("config.json", "r", encoding="utf-8") as f:
+        config = json.load(f)
+except Exception as e:
+    print(f"Error loading config.json: {e}")
+    sys.exit(1)
+
+
+missing = [k for k in REQUIRED_KEYS if k not in config or not config[k]]
+if missing:
+    print(f"Error: Missing or empty config keys: {', '.join(missing)}")
+    sys.exit(1)
 
 
 def ensure_trailing_sep(path):
