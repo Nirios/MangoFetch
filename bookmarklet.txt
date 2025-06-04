@@ -1,0 +1,115 @@
+URLs for videos, with and without alert
+javascript:fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)).then(r=>r.text()).then(alert)
+javascript:fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href))
+URLs for audio only, with and without alert
+javascript:fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)+'&mode=audio').then(r=>r.text()).then(alert)
+javascript:fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)+'&mode=audio')
+
+
+URLs with floating box
+
+AUDIO
+# one line
+javascript:(function(){let old=document.getElementById('yt-dlp-status-box');if(old)old.remove();let box=document.createElement('div');box.id='yt-dlp-status-box';box.style.position='fixed';box.style.top='60px';box.style.right='20px';box.style.background='rgba(0,0,0,0.85)';box.style.color='#fff';box.style.padding='14px 20px';box.style.borderRadius='8px';box.style.zIndex=99999;box.style.fontSize='16px';box.style.boxShadow='0 2px 8px #0003';box.textContent='Sending download request...';document.body.appendChild(box);fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)+'&mode=audio').then(r=>r.text()).then(function(t){let match=t.match(/ID:\s*([a-f0-9-]+)/i);if(!match){box.textContent='Server error: '+t;return;}let id=match[1];box.textContent='Download queued...';let poll=setInterval(function(){fetch('http://localhost:8000/status?id='+id).then(r=>r.text()).then(function(status){box.textContent='Download status: '+status;if(/completed|failed/i.test(status)){clearInterval(poll);box.textContent='Download status: '+status+' (This box will close in 10s)';setTimeout(()=>box.remove(),10000);}});},300);}).catch(e=>{box.textContent='Error: '+e;});})();
+
+# expanded
+javascript:(function(){
+  let old=document.getElementById('yt-dlp-status-box');
+  if(old) old.remove();
+  let box=document.createElement('div');
+  box.id='yt-dlp-status-box';
+  box.style.position='fixed';
+  box.style.top='60px';
+  box.style.right='20px';
+  box.style.background='rgba(0,0,0,0.85)';
+  box.style.color='#fff';
+  box.style.padding='14px 20px';
+  box.style.borderRadius='8px';
+  box.style.zIndex=99999;
+  box.style.fontSize='16px';
+  box.style.boxShadow='0 2px 8px #0003';
+  box.textContent='Sending download request...';
+  document.body.appendChild(box);
+
+  fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)+'&mode=audio')
+    .then(r=>r.text())
+    .then(function(t){
+      let match=t.match(/ID:\s*([a-f0-9-]+)/i);
+      if(!match){
+        box.textContent='Server error: '+t;
+        return;
+      }
+      let id=match[1];
+      box.textContent='Download queued...';
+      let poll=setInterval(function(){
+        fetch('http://localhost:8000/status?id='+id)
+          .then(r=>r.text())
+          .then(function(status){
+            box.textContent='Download status: '+status;
+            if(/completed|failed/i.test(status)){
+              clearInterval(poll);
+              box.textContent='Download status: '+status+' (This box will close in 10s)';
+              setTimeout(()=>box.remove(),10000);
+            }
+          });
+      },300);
+    })
+    .catch(e=>{
+      box.textContent='Error: '+e;
+    });
+})();
+
+
+
+
+VIDEO
+# one liner
+javascript:(function(){let old=document.getElementById('yt-dlp-status-box');if(old)old.remove();let box=document.createElement('div');box.id='yt-dlp-status-box';box.style.position='fixed';box.style.top='60px';box.style.right='20px';box.style.background='rgba(0,0,0,0.85)';box.style.color='#fff';box.style.padding='14px 20px';box.style.borderRadius='8px';box.style.zIndex=99999;box.style.fontSize='16px';box.style.boxShadow='0 2px 8px #0003';box.textContent='Sending download request...';document.body.appendChild(box);fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)).then(r=>r.text()).then(function(t){let match=t.match(/ID:\s*([a-f0-9-]+)/i);if(!match){box.textContent='Server error: '+t;return;}let id=match[1];box.textContent='Download queued...';let poll=setInterval(function(){fetch('http://localhost:8000/status?id='+id).then(r=>r.text()).then(function(status){box.textContent='Download status: '+status;if(/completed|failed/i.test(status)){clearInterval(poll);box.textContent='Download status: '+status+' (This box will close in 10s)';setTimeout(()=>box.remove(),10000);}});},300);}).catch(e=>{box.textContent='Error: '+e;});})();
+
+# expanded
+javascript:(function(){
+  let old=document.getElementById('yt-dlp-status-box');
+  if(old) old.remove();
+  let box=document.createElement('div');
+  box.id='yt-dlp-status-box';
+  box.style.position='fixed';
+  box.style.top='60px';
+  box.style.right='20px';
+  box.style.background='rgba(0,0,0,0.85)';
+  box.style.color='#fff';
+  box.style.padding='14px 20px';
+  box.style.borderRadius='8px';
+  box.style.zIndex=99999;
+  box.style.fontSize='16px';
+  box.style.boxShadow='0 2px 8px #0003';
+  box.textContent='Sending download request...';
+  document.body.appendChild(box);
+
+  fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href))
+    .then(r=>r.text())
+    .then(function(t){
+      let match=t.match(/ID:\s*([a-f0-9-]+)/i);
+      if(!match){
+        box.textContent='Server error: '+t;
+        return;
+      }
+      let id=match[1];
+      box.textContent='Download queued...';
+      let poll=setInterval(function(){
+        fetch('http://localhost:8000/status?id='+id)
+          .then(r=>r.text())
+          .then(function(status){
+            box.textContent='Download status: '+status;
+            if(/completed|failed/i.test(status)){
+              clearInterval(poll);
+              box.textContent='Download status: '+status+' (This box will close in 10s)';
+              setTimeout(()=>box.remove(),10000);
+            }
+          });
+      },300);
+    })
+    .catch(e=>{
+      box.textContent='Error: '+e;
+    });
+})();
+
