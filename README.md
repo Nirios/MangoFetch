@@ -6,14 +6,27 @@ This is a simple Python server that lets you queue YouTube video or audio downlo
 
 ## MangoFetch Bookmarklets
 
-What is a bookmarklet?
+**What is a bookmarklet?**  
 A bookmarklet is a tiny JavaScript program saved as a bookmark in your browser’s bookmarks bar. When you’re on a page (like a YouTube video), you click the bookmarklet and it performs a special action—in this case, sending the video to your MangoFetch download server and showing a floating status box.
 
-Drag and drop one of the images below to your bookmarks bar.
-<div style="display: flex; gap: 32px; align-items: center; margin: 24px 0;">
-  <a href="javascript:(function(){let old=document.getElementById('yt-dlp-status-box');if(old)old.remove();let box=document.createElement('div');box.id='yt-dlp-status-box';box.style.position='fixed';box.style.top='20px';box.style.right='20px';box.style.background='rgba(0,0,0,0.85)';box.style.color='#fff';box.style.padding='14px 20px';box.style.borderRadius='8px';box.style.zIndex=99999;box.style.fontSize='16px';box.style.boxShadow='0 2px 8px #0003';box.textContent='Sending download request...';document.body.appendChild(box);fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)).then(r=>r.text()).then(function(t){let match=t.match(/ID:\s*([a-f0-9-]+)/i);if(!match){box.textContent='Server error: '+t;return;}let id=match[1];box.textContent='Download queued...';let poll=setInterval(function(){fetch('http://localhost:8000/status?id='+id).then(r=>r.text()).then(function(status){box.textContent='Download status: '+status;if(/completed|failed/i.test(status)){clearInterval(poll);box.textContent='Download status: '+status+' (This box will close in 10s)';setTimeout(()=>box.remove(),10000);}});},300);}).catch(e=>{box.textContent='Error: '+e;});})();" title="Drag to your bookmarks bar!" style="font-size: 1.15em; font-weight: bold; padding: 8px 18px; background: #f8f8f8; border-radius: 6px; border: 1px solid #ddd; text-decoration: none; color: #e67e22; white-space: nowrap;">MangoFetch Video</a>
-  <a href="javascript:(function(){let old=document.getElementById('yt-dlp-status-box');if(old)old.remove();let box=document.createElement('div');box.id='yt-dlp-status-box';box.style.position='fixed';box.style.top='20px';box.style.right='20px';box.style.background='rgba(0,0,0,0.85)';box.style.color='#fff';box.style.padding='14px 20px';box.style.borderRadius='8px';box.style.zIndex=99999;box.style.fontSize='16px';box.style.boxShadow='0 2px 8px #0003';box.textContent='Sending download request...';document.body.appendChild(box);fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)+'&mode=audio').then(r=>r.text()).then(function(t){let match=t.match(/ID:\s*([a-f0-9-]+)/i);if(!match){box.textContent='Server error: '+t;return;}let id=match[1];box.textContent='Download queued...';let poll=setInterval(function(){fetch('http://localhost:8000/status?id='+id).then(r=>r.text()).then(function(status){box.textContent='Download status: '+status;if(/completed|failed/i.test(status)){clearInterval(poll);box.textContent='Download status: '+status+' (This box will close in 10s)';setTimeout(()=>box.remove(),10000);}});},300);}).catch(e=>{box.textContent='Error: '+e;});})();" title="Drag to your bookmarks bar!" style="font-size: 1.15em; font-weight: bold; padding: 8px 18px; background: #f8f8f8; border-radius: 6px; border: 1px solid #ddd; text-decoration: none; color: #2980b9; white-space: nowrap;">MangoFetch Audio</a>
-</div>
+### How to add the MangoFetch bookmarklet
+
+1. **Copy the code below for the bookmarklet you want.**
+2. **Create a new bookmark** in your browser’s bookmarks bar.
+3. **Paste the code** into the URL/location field of the bookmark.
+4. **Name it** "MangoFetch Video" or "MangoFetch Audio".
+
+#### MangoFetch Video
+
+```
+javascript:(function(){let old=document.getElementById('yt-dlp-status-box');if(old)old.remove();let box=document.createElement('div');box.id='yt-dlp-status-box';box.style.position='fixed';box.style.top='20px';box.style.right='20px';box.style.background='rgba(0,0,0,0.85)';box.style.color='#fff';box.style.padding='14px 20px';box.style.borderRadius='8px';box.style.zIndex=99999;box.style.fontSize='16px';box.style.boxShadow='0 2px 8px #0003';box.textContent='Sending download request...';document.body.appendChild(box);fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)).then(r=>r.text()).then(function(t){let match=t.match(/ID:\s*([a-f0-9-]+)/i);if(!match){box.textContent='Server error: '+t;return;}let id=match[1];box.textContent='Download queued...';let poll=setInterval(function(){fetch('http://localhost:8000/status?id='+id).then(r=>r.text()).then(function(status){box.textContent='Download status: '+status;if(/completed|failed/i.test(status)){clearInterval(poll);box.textContent='Download status: '+status+' (This box will close in 10s)';setTimeout(()=>box.remove(),10000);}});},300);}).catch(e=>{box.textContent='Error: '+e;});})();
+```
+
+#### MangoFetch Audio
+
+```
+javascript:(function(){let old=document.getElementById('yt-dlp-status-box');if(old)old.remove();let box=document.createElement('div');box.id='yt-dlp-status-box';box.style.position='fixed';box.style.top='20px';box.style.right='20px';box.style.background='rgba(0,0,0,0.85)';box.style.color='#fff';box.style.padding='14px 20px';box.style.borderRadius='8px';box.style.zIndex=99999;box.style.fontSize='16px';box.style.boxShadow='0 2px 8px #0003';box.textContent='Sending download request...';document.body.appendChild(box);fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)+'&mode=audio').then(r=>r.text()).then(function(t){let match=t.match(/ID:\s*([a-f0-9-]+)/i);if(!match){box.textContent='Server error: '+t;return;}let id=match[1];box.textContent='Download queued...';let poll=setInterval(function(){fetch('http://localhost:8000/status?id='+id).then(r=>r.text()).then(function(status){box.textContent='Download status: '+status;if(/completed|failed/i.test(status)){clearInterval(poll);box.textContent='Download status: '+status+' (This box will close in 10s)';setTimeout(()=>box.remove(),10000);}});},300);}).catch(e=>{box.textContent='Error: '+e;});})();
+```
 
 ## Features
 
@@ -51,19 +64,10 @@ Drag and drop one of the images below to your bookmarks bar.
    ```
    The server will print `Server running on port 8000`.
 
-2. **Add the bookmarklet to your browser:**
-
-    Drag these to your bookmarks bar:
-
-<div style="display: flex; gap: 32px; align-items: center; margin: 24px 0;">
-  <a href="javascript:(function(){let old=document.getElementById('yt-dlp-status-box');if(old)old.remove();let box=document.createElement('div');box.id='yt-dlp-status-box';box.style.position='fixed';box.style.top='20px';box.style.right='20px';box.style.background='rgba(0,0,0,0.85)';box.style.color='#fff';box.style.padding='14px 20px';box.style.borderRadius='8px';box.style.zIndex=99999;box.style.fontSize='16px';box.style.boxShadow='0 2px 8px #0003';box.textContent='Sending download request...';document.body.appendChild(box);fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)).then(r=>r.text()).then(function(t){let match=t.match(/ID:\s*([a-f0-9-]+)/i);if(!match){box.textContent='Server error: '+t;return;}let id=match[1];box.textContent='Download queued...';let poll=setInterval(function(){fetch('http://localhost:8000/status?id='+id).then(r=>r.text()).then(function(status){box.textContent='Download status: '+status;if(/completed|failed/i.test(status)){clearInterval(poll);box.textContent='Download status: '+status+' (This box will close in 10s)';setTimeout(()=>box.remove(),10000);}});},300);}).catch(e=>{box.textContent='Error: '+e;});})();" title="Drag to your bookmarks bar!" style="font-size: 1.15em; font-weight: bold; padding: 8px 18px; background: #f8f8f8; border-radius: 6px; border: 1px solid #ddd; text-decoration: none; color: #e67e22; white-space: nowrap;">MangoFetch Video</a>
-  <a href="javascript:(function(){let old=document.getElementById('yt-dlp-status-box');if(old)old.remove();let box=document.createElement('div');box.id='yt-dlp-status-box';box.style.position='fixed';box.style.top='20px';box.style.right='20px';box.style.background='rgba(0,0,0,0.85)';box.style.color='#fff';box.style.padding='14px 20px';box.style.borderRadius='8px';box.style.zIndex=99999;box.style.fontSize='16px';box.style.boxShadow='0 2px 8px #0003';box.textContent='Sending download request...';document.body.appendChild(box);fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)+'&mode=audio').then(r=>r.text()).then(function(t){let match=t.match(/ID:\s*([a-f0-9-]+)/i);if(!match){box.textContent='Server error: '+t;return;}let id=match[1];box.textContent='Download queued...';let poll=setInterval(function(){fetch('http://localhost:8000/status?id='+id).then(r=>r.text()).then(function(status){box.textContent='Download status: '+status;if(/completed|failed/i.test(status)){clearInterval(poll);box.textContent='Download status: '+status+' (This box will close in 10s)';setTimeout(()=>box.remove(),10000);}});},300);}).catch(e=>{box.textContent='Error: '+e;});})();" title="Drag to your bookmarks bar!" style="font-size: 1.15em; font-weight: bold; padding: 8px 18px; background: #f8f8f8; border-radius: 6px; border: 1px solid #ddd; text-decoration: none; color: #2980b9; white-space: nowrap;">MangoFetch Audio</a>
-</div>
-
-3. **Go to a YouTube video page and click the bookmarklet.**
+2. **Go to a YouTube video page and click the bookmarklet previously added.**
    - The download will be queued and you’ll see a floating status box showing progress and queue position.
 
-4. **Downloaded files** will appear in the directories specified in your `config.json`.
+3. **Downloaded files** will appear in the directories specified in your `config.json`.
 
 ## Notes
 
