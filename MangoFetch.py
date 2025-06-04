@@ -9,15 +9,6 @@ import json
 import uuid
 
 
-# Add those to your browser bookmarks
-# URLs for videos, with and without alert
-# javascript:fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)).then(r=>r.text()).then(alert)
-# javascript:fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href))
-# URLs for audio only, with and without alert
-# javascript:fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)+'&mode=audio').then(r=>r.text()).then(alert)
-# javascript:fetch('http://localhost:8000?url='+encodeURIComponent(window.location.href)+'&mode=audio')
-
-
 REQUIRED_KEYS = ["port", "audio_path", "video_path"]
 download_status = {}
 pending_ids = []
